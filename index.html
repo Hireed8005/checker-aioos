@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.6">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="es"&gt;</p>
+<p class="p1">&lt;head&gt;&lt;meta charset="UTF-8"/&gt;&lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;&lt;title&gt;Generador y Checker&lt;/title&gt;</p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1">body{font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;}</p>
+<p class="p1">.container{max-width:500px;margin:auto;background:#fff;padding:20px;border-radius:8px;}</p>
+<p class="p1">label,select,input,button{display:block;width:100%;margin:8px 0;}</p>
+<p class="p1">button{padding:10px;background:#0077cc;color:#fff;border:none;border-radius:4px;cursor:pointer;}</p>
+<p class="p1">table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px;}</p>
+<p class="p1">th,td{border:1px solid #ccc;padding:6px;text-align:center;}</p>
+<p class="p1">th{background:#0077cc;color:#fff;}</p>
+<p class="p1">.valid{background:#dfd;}</p>
+<p class="p1">.invalid{background:#fdd;}</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1">&lt;div class="container"&gt;</p>
+<p class="p1">&lt;h2&gt;Generador + Checker de Tarjetas&lt;/h2&gt;</p>
+<p class="p1">&lt;form id="f"&gt;</p>
+<p class="p1">&lt;label&gt;BIN (usa X para completar)&lt;/label&gt;&lt;input id="bin" placeholder="Ej: 4539XXXXXXXXXXX" required maxlength="19"&gt;</p>
+<p class="p1">&lt;label&gt;Cantidad&lt;/label&gt;&lt;input id="cantidad" type="number" min="1" max="50" value="10"&gt;</p>
+<p class="p1">&lt;label&gt;&lt;input id="cvvOn" type="checkbox"&gt; Incluir CVV aleatorio&lt;/label&gt;</p>
+<p class="p1">&lt;div style="display:flex;gap:10px;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;select id="mes"&gt;&lt;option value=""&gt;Mes&lt;/option&gt;&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;select id="anio"&gt;&lt;option value=""&gt;Año&lt;/option&gt;&lt;/select&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p1">&lt;button type="submit"&gt;Generar y Verificar&lt;/button&gt;</p>
+<p class="p1">&lt;/form&gt;</p>
+<p class="p1">&lt;table id="tabla" style="display:none"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;#&lt;/th&gt;&lt;th&gt;Marca&lt;/th&gt;&lt;th&gt;Tarjeta&lt;/th&gt;&lt;th&gt;CVV&lt;/th&gt;&lt;th&gt;Exp.&lt;/th&gt;&lt;th&gt;Estado&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;/tbody&gt;&lt;/table&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">const mes=document.getElementById('mes'),anio=document.getElementById('anio'),f=document.getElementById('f'),tabla=document.getElementById('tabla'),tb=tabla.querySelector('tbody');</p>
+<p class="p1">for(let i=1;i&lt;=12;i++)mes.add(new Option(String(i).padStart(2,'0'),String(i).padStart(2,'0')));</p>
+<p class="p1">const cury=new Date().getFullYear();for(let i=0;i&lt;=10;i++){const y=cury+i;anio.add(new Option(y,y.toString().slice(-2)));}</p>
+<p class="p1">function luhnCheck(n){let s=0,a=false;for(let i=n.length-1;i&gt;=0;i--){let d=+n[i];if(a){d*=2;if(d&gt;9)d-=9;}s+=d;a=!a;}return s%10===0;}</p>
+<p class="p1">function luhnDigit(n){let s=0,a=true;for(let i=n.length-1;i&gt;=0;i--){let d=+n[i];if(a){d*=2;if(d&gt;9)d-=9;}s+=d;a=!a;}return (10-s%10)%10;}</p>
+<p class="p1">function dt(b){if(/^4/.test(b))return'Visa';if(/^5[1-5]/.test(b))return'Master';if(/^3[47]/.test(b))return'Amex';return'Otra';}</p>
+<p class="p1">const rx={Visa:/^4\d{12}(?:\d{3})?$/,Master:/^5[1-5]\d{14}$/,Amex:/^3[47]\d{13}$/,Otra:/^\d{13,19}$/};</p>
+<p class="p1">f.onsubmit=e=&gt;{e.preventDefault();tb.innerHTML='';tabla.style.display='none';const b=document.getElementById('bin').value.trim(),qty=+document.getElementById('cantidad').value,cvvOn=document.getElementById('cvvOn').checked,m=mes.value,y=anio.value;for(let i=0;i&lt;qty;i++){const br=dt(b),len=br==='Amex'?15:16,base=b.padEnd(len-1,'X').replace(/X/g,_=&gt;Math.floor(Math.random()*10)),full=base+luhnDigit(base),cvv=cvvOn?String(Math.floor(Math.random()*1000)).padStart(3,'0'):'';const exp=(m&amp;&amp;y?`${m}/${y}`:'');const okL=luhnCheck(full),okR=rx[br].test(full);const tr=document.createElement('tr');tr.className=(okL&amp;&amp;okR?'valid':'invalid');tr.innerHTML=`&lt;td&gt;${i+1}&lt;/td&gt;&lt;td&gt;${br}&lt;/td&gt;&lt;td&gt;${full}&lt;/td&gt;&lt;td&gt;${cvv}&lt;/td&gt;&lt;td&gt;${exp}&lt;/td&gt;&lt;td&gt;${(okL&amp;&amp;okR)?'✓':'✗'}&lt;/td&gt;`;tb.appendChild(tr);}tabla.style.display='table';};</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
